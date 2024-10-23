@@ -17,7 +17,6 @@
   <script>
     $(function() {
       $('#pokemon_search').click(serch);
-
       const encountHtml =
         `
           <p class="name"></p>
@@ -29,7 +28,6 @@
             <button class="btn" data-js="reset">逃げる</button>
           </div>
         `;
-
       const doneHtml =
         `
           <p class="name">ゲットしました</p>
@@ -38,15 +36,12 @@
           </div>
           <button class="btn" data-js="reset">戻る</button>
         `;
-
       const failHtml =
         `
           <p class="text">逃げられてしまった...</p>
           <button class="btn mt" data-js="reset">戻る</button>
         `;
-
       const backHtml = '<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>';
-
       const errorHtml = '<p>エラーが発生しました。もう一度試してください。</p>';
 
       function back(){
