@@ -16,7 +16,7 @@
   <script src="../../common/js/jquery.js"></script>
   <script>
     $(function() {
-      $('#pokemon_search').click(serch);
+      $('#pokemon_search').click(showPoke);
       const encountHtml =
         `
           <p class="name"></p>
@@ -46,15 +46,15 @@
 
       function back(){
         $('#wrapper').html(backHtml);
-        $('#pokemon_search').click(serch);
+        $('#pokemon_search').click(showPoke);
       };
 
-      function error(){
+      function showError(){
         console.log('接続に失敗しました。');
         $('#wrapper').html(errorHtml);
       };
 
-      function serch(){
+      function showPoke(){
         const randNum = Math.floor((Math.random() * 151) + 1);
         $.ajax({
           url: 'https://pokeapi.co/api/v2/pokemon/' + randNum,
@@ -68,27 +68,29 @@
             const name = res.names.find(name => name.language.name === 'ja').name;
             $('#wrapper').html(encountHtml);
             $('.name').append(name);
-            $('.img').attr('src', sprites);
-            $('.img').attr('alt', name);
-            $('#catch').click(function(){
-              $.ajax({
-                url: 'https://pokeapi.co/api/v2/item/4',
-                method: 'GET'
-              }).done(function(res) {
-                const ball = res.sprites.default;
-                if (Math.random() < 0.5){
-                  $('#wrapper').html(doneHtml);
-                  $('.img').attr('src', ball);
-                  $('button[data-js="reset"]').click(back);
-                } else {
-                  $('#wrapper').html(failHtml);
-                  $('button[data-js="reset"]').click(back);
-                };
-              }).fail(error);
-            });
+            $('.img').attr('src', sprites).attr('alt', name);
+            $('#catch').click(catchPoke);
             $('button[data-js="reset"]').click(back);
-          }).fail(error);
-        }).fail(error);
+          }).fail(showError);
+        }).fail(showError);
+      };
+
+      function catchPoke(){
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/item/4',
+          method: 'GET'
+        }).done(function(res) {
+          const ball = res.sprites.default;
+          if (Math.random() < 0.5){
+            $('#wrapper').html(doneHtml);
+            $('.img').attr('src', ball);
+            $('button[data-js="reset"]').click(back);
+          } else {
+            $('#wrapper').html(failHtml);
+            $('#catch').click(catchPoke);
+            $('button[data-js="reset"]').click(back);
+          };
+        }).fail(showError);
       };
     });
   </script>
