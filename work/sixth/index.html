@@ -16,78 +16,85 @@
   <script src="../../common/js/jquery.js"></script>
   <script>
     $(function() {
-      const randNum = Math.floor((Math.random() * 151) + 1);
+      $('#pokemon_search').click(serch);
 
-      const error = function() {
-        console.log('接続に失敗しました。');
-        $('#wrapper').html('<p>エラーが発生しました。もう一度試してください。</p>');
+      const encountHtml =
+        `
+          <p class="name"></p>
+          <div>
+            <img class="img" src="" alt="">
+          </div>
+          <div>
+            <button class="btn" id="catch">捕まえる</button>
+            <button class="btn" data-js="reset">逃げる</button>
+          </div>
+        `;
+
+      const doneHtml =
+        `
+          <p class="name">ゲットしました</p>
+          <div>
+            <img class="img" src="" alt="">
+          </div>
+          <button class="btn" data-js="reset">戻る</button>
+        `;
+
+      const failHtml =
+        `
+          <p class="text">逃げられてしまった...</p>
+          <button class="btn mt" data-js="reset">戻る</button>
+        `;
+
+      const backHtml = '<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>';
+
+      const errorHtml = '<p>エラーが発生しました。もう一度試してください。</p>';
+
+      function back(){
+        $('#wrapper').html(backHtml);
+        $('#pokemon_search').click(serch);
       };
 
-      const encount = function(res) {
+      function error(){
+        console.log('接続に失敗しました。');
+        $('#wrapper').html(errorHtml);
+      };
+
+      function serch(){
+        const randNum = Math.floor((Math.random() * 151) + 1);
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon/' + randNum,
+          method: 'GET'
+        }).done(function(res) {
           const sprites = res.sprites.front_default;
           $.ajax({
-            url: `https://pokeapi.co/api/v2/pokemon-species/${randNum}`,
+            url: 'https://pokeapi.co/api/v2/pokemon-species/' + randNum,
             method: 'GET'
-          })
-          .done(function(res) {
+          }).done(function(res) {
             const name = res.names.find(name => name.language.name === 'ja').name;
-            const encountHtml =
-            `
-              <p class="name">${name}</p>
-              <div>
-                <img class="img" src="${sprites}" alt="${name}">
-              </div>
-              <div>
-                <button class="btn" id="catch">捕まえる</button>
-                <button class="btn" data-js="reset">逃げる</button>
-              </div>
-            `
             $('#wrapper').html(encountHtml);
+            $('.name').append(name);
+            $('.img').attr('src', sprites);
+            $('.img').attr('alt', name);
             $('#catch').click(function(){
               $.ajax({
                 url: 'https://pokeapi.co/api/v2/item/4',
                 method: 'GET'
-              })
-              .done(coinToss)
-              .fail(error);
+              }).done(function(res) {
+                const ball = res.sprites.default;
+                if (Math.random() < 0.5){
+                  $('#wrapper').html(doneHtml);
+                  $('.img').attr('src', ball);
+                  $('button[data-js="reset"]').click(back);
+                } else {
+                  $('#wrapper').html(failHtml);
+                  $('button[data-js="reset"]').click(back);
+                };
+              }).fail(error);
             });
-          })
-          .fail(error);
-        };
-
-      const coinToss = function(res) {
-        const ball = res.sprites.default;
-        if (Math.random() < 0.5){
-          const doneHtml =
-          `
-            <p class="name">ゲットしました</p>
-            <div>
-              <img class="img" src="${ball}" alt="">
-            </div>
-            <button class="btn" data-js="reset">戻る</button>
-          `
-          $('#wrapper').html(doneHtml);
-        } else {
-          const failHtml =
-            `
-              <p class="text">逃げられてしまった...</p>
-              <button class="btn mt" data-js="reset">戻る</button>
-            `
-          $('#wrapper').html(failHtml);
-        }
+            $('button[data-js="reset"]').click(back);
+          }).fail(error);
+        }).fail(error);
       };
-
-      $('#pokemon_search').click(function(){
-        $.ajax({
-          url: `https://pokeapi.co/api/v2/pokemon/${randNum}`,
-          method: 'GET'
-        })
-        .done(encount)
-        .fail(error);
-      });
-      $(document).on('click', '[data-js="reset"]', function() {
-        location.reload();
-      });
     });
   </script>
 </body>
