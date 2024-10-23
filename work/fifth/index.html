@@ -87,7 +87,7 @@
       $(function () {
         $('.select').change(categorySelect);
         function categorySelect () {
-          var value = $(this).val();
+          const value = $(this).val();
           if (value === 'all') {
             $('.list li').show();
           }
