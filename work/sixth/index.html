@@ -15,7 +15,80 @@
   </div>
   <script src="../../common/js/jquery.js"></script>
   <script>
-    // 回答はここに書いてね
+    $(function() {
+      const randNum = Math.floor((Math.random() * 151) + 1);
+
+      const error = function() {
+        console.log('接続に失敗しました。');
+        $('#wrapper').html('<p>エラーが発生しました。もう一度試してください。</p>');
+      };
+
+      const encount = function(res) {
+          const sprites = res.sprites.front_default;
+          $.ajax({
+            url: `https://pokeapi.co/api/v2/pokemon-species/${randNum}`,
+            method: 'GET'
+          })
+          .done(function(res) {
+            const name = res.names.find(name => name.language.name === 'ja').name;
+            const encountHtml =
+            `
+              <p class="name">${name}</p>
+              <div>
+                <img class="img" src="${sprites}" alt="${name}">
+              </div>
+              <div>
+                <button class="btn" id="catch">捕まえる</button>
+                <button class="btn" data-js="reset">逃げる</button>
+              </div>
+            `
+            $('#wrapper').html(encountHtml);
+            $('#catch').click(function(){
+              $.ajax({
+                url: 'https://pokeapi.co/api/v2/item/4',
+                method: 'GET'
+              })
+              .done(coinToss)
+              .fail(error);
+            });
+          })
+          .fail(error);
+        };
+
+      const coinToss = function(res) {
+        const ball = res.sprites.default;
+        if (Math.random() < 0.5){
+          const doneHtml =
+          `
+            <p class="name">ゲットしました</p>
+            <div>
+              <img class="img" src="${ball}" alt="">
+            </div>
+            <button class="btn" data-js="reset">戻る</button>
+          `
+          $('#wrapper').html(doneHtml);
+        } else {
+          const failHtml =
+            `
+              <p class="text">逃げられてしまった...</p>
+              <button class="btn mt" data-js="reset">戻る</button>
+            `
+          $('#wrapper').html(failHtml);
+        }
+      };
+
+      $('#pokemon_search').click(function(){
+        $.ajax({
+          url: `https://pokeapi.co/api/v2/pokemon/${randNum}`,
+          method: 'GET'
+        })
+        .done(encount)
+        .fail(error);
+      });
+      $(document).on('click', '[data-js="reset"]', function() {
+        location.reload();
+      });
+    });
   </script>
 </body>
 </html>
