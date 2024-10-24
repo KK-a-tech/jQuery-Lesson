@@ -16,7 +16,15 @@
   <script src="../../common/js/jquery.js"></script>
   <script>
     $(function() {
-      $('#pokemon_search').click(serchPoke);
+      $('#pokemon_search').click(showPoke);
+
+      $(document).on('click', '#catch', function () {
+        catchPoke();
+      });
+
+      $(document).on('click', 'button[data-js="reset"]', function () {
+        back();
+      });
 
       const encountHtml =
         `
@@ -70,8 +78,6 @@
             $('#wrapper').html(encountHtml);
             $('.name').append(name);
             $('.img').attr('src', sprites).attr('alt', name);
-            $('#catch').click(catchPoke);
-            $('button[data-js="reset"]').click(back);
           }).fail(showError);
         }).fail(showError);
       };
@@ -85,11 +91,8 @@
           if (Math.random() < 0.5){
             $('#wrapper').html(doneHtml);
             $('.img').attr('src', ball);
-            $('button[data-js="reset"]').click(back);
           } else {
             $('#wrapper').html(failHtml);
-            $('#catch').click(catchPoke);
-            $('button[data-js="reset"]').click(back);
           };
         }).fail(showError);
       };
