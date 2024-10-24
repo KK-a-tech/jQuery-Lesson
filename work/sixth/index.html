@@ -15,7 +15,88 @@
   </div>
   <script src="../../common/js/jquery.js"></script>
   <script>
-    // 回答はここに書いてね
+    $(function() {
+      $('#pokemon_search').click(showPoke);
+
+      $(document).on('click', '#catch', function () {
+        catchPoke();
+      });
+
+      $(document).on('click', 'button[data-js="reset"]', function () {
+        back();
+      });
+
+      const encountHtml =
+        `
+          <p class="name"></p>
+          <div>
+            <img class="img" src="" alt="">
+          </div>
+          <div>
+            <button class="btn" id="catch">捕まえる</button>
+            <button class="btn" data-js="reset">逃げる</button>
+          </div>
+        `;
+      const doneHtml =
+        `
+          <p class="name">ゲットしました</p>
+          <div>
+            <img class="img" src="" alt="">
+          </div>
+          <button class="btn" data-js="reset">戻る</button>
+        `;
+      const failHtml =
+        `
+          <p class="text">逃げられてしまった...</p>
+          <button class="btn mt" data-js="reset">戻る</button>
+        `;
+      const backHtml = '<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>';
+      const errorHtml = '<p>エラーが発生しました。もう一度試してください。</p>';
+
+      function back(){
+        $('#wrapper').html(backHtml);
+        $('#pokemon_search').click(showPoke);
+      };
+
+      function showError(){
+        console.log('接続に失敗しました。');
+        $('#wrapper').html(errorHtml);
+      };
+
+      function showPoke(){
+        const randNum = Math.floor((Math.random() * 151) + 1);
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon/' + randNum,
+          method: 'GET'
+        }).done(function(res) {
+          const sprites = res.sprites.front_default;
+          $.ajax({
+            url: 'https://pokeapi.co/api/v2/pokemon-species/' + randNum,
+            method: 'GET'
+          }).done(function(res) {
+            const name = res.names.find(name => name.language.name === 'ja').name;
+            $('#wrapper').html(encountHtml);
+            $('.name').append(name);
+            $('.img').attr('src', sprites).attr('alt', name);
+          }).fail(showError);
+        }).fail(showError);
+      };
+
+      function catchPoke(){
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/item/4',
+          method: 'GET'
+        }).done(function(res) {
+          const ball = res.sprites.default;
+          if (Math.random() < 0.5){
+            $('#wrapper').html(doneHtml);
+            $('.img').attr('src', ball);
+          } else {
+            $('#wrapper').html(failHtml);
+          };
+        }).fail(showError);
+      };
+    });
   </script>
 </body>
 </html>
